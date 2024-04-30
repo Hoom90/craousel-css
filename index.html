@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            border: 1px solid;
+            height: 500px;
+            width: 800px;
+            position: relative;
+            margin-inline: auto;
+        }
+
+        .slider-container {
+            width: 100%;
+            position: relative;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .slider {
+            position: absolute;
+            height: 100%;
+            width: 300%;
+            display: flex;
+            flex-direction: row-reverse;
+            transition: 0.5s all ease-in-out;
+        }
+
+        .slides {
+            width: 33.33%;
+            height: 100%;
+            display: flex;
+            justify-content: start;
+            align-items: center;
+        }
+
+        .slides-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: start;
+            align-items: center;
+            width: 50%;
+            padding-left: 40px;
+            padding-right: 40px;
+        }
+
+        .slides-image-container {
+            display: flex;
+            justify-self: center;
+            align-items: center;
+            height: 100%;
+            width: 50%;
+        }
+
+        .slides img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .dot-container{
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .dot {
+            width: 5px;
+            height: 5px;
+            margin-left: 5px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            transition: background-color .5s ease-in-out;
+        }
+
+        .dot.active {
+            background-color: #49b779;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="slider-container">
+            <div class="slider" id="slider">
+            </div>
+        </div>
+        <div class="dot-container" id="navigation">
+        </div>
+        <div class="w-[98%] flex justify-between items-center gap-10 absolute top-[50%] left-[1%] translate-y-[-50%]">
+            <button onclick="previousSlide()"
+                class="border bg-white w-[50px] aspect-square rounded-full flex justify-center items-center">left</button>
+            <button onclick="nextSlide()"
+                class="border bg-white w-[50px] aspect-square rounded-full flex justify-center items-center">right</button>
+        </div>
+    </div>
+</body>
+<script>
+    const data = [
+        {
+            id:1,
+            title:'Smartphone',
+            summary:'Samsung Book',
+            description:'Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim aut maxime expedita optio provident similique officia delectus labore et sed quam, tempore temporibus ab. Sunt natus sit maiores in numquam?',
+            image:'apple-mac-laptop.jpg',
+        },
+        {
+            id:2,
+            title:'Labtop',
+            summary:'Apple Mac Book Pro 5',
+            description:'Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim aut maxime expedita optio provident similique officia delectus labore et sed quam, tempore temporibus ab. Sunt natus sit maiores in numquam?',
+            image:'apple-smart-phone.jpg',
+        },
+        {
+            id:3,
+            title:'TV',
+            summary:'Pro 5',
+            description:'Lorem ipsum dolor sit amet consectetur adipisicing elit. Enim aut maxime expedita optio provident similique officia delectus labore et sed quam, tempore temporibus ab. Sunt natus sit maiores in numquam?',
+            image:'samsung-smart-tv.jpg',
+        },
+    ]
+    let currentIndex = 0;
+    let lastIndex = 0;
+    const slider = document.getElementById('slider')
+    const navigation = document.getElementById('navigation')
+    
+    const slide = (index,force) => {
+        if(force){
+            lastIndex = currentIndex
+        }
+        currentIndex = index;
+        slider.style.transform = `translateX(${index * - 33.33}%)`;
+        dotHandle(currentIndex)
+    };
+
+    const nextSlide = () => {
+        lastIndex = currentIndex
+        if (currentIndex >= data.length - 1) {
+            currentIndex = 0;
+            slider.style.transform = `translateX(0)`;
+        } else {
+            slider.style.transform = `translateX(${(currentIndex + 1) * - 33.33}%)`;
+            currentIndex++;
+        }
+        dotHandle(currentIndex)
+    };
+
+    const previousSlide = () => {
+        lastIndex = currentIndex
+        if (currentIndex <= 0) {
+            currentIndex = data.length - 1;
+            slider.style.transform = `translateX(${2 * - 33.33}%)`;
+        }
+        else {
+            slider.style.transform = `translateX(${(currentIndex - 1) * - 33.33}%)`;
+            currentIndex--;
+        }
+        dotHandle(currentIndex)
+    };
+
+    const dotHandle = (index)=>{
+        navigation.children[lastIndex].classList.remove('active')
+        navigation.children[index].classList.add('active')
+    }
+
+    let temp = []
+    let temp2 = []
+    data.forEach(item =>{
+         temp+=`
+            <div class="slides">
+                <div class="slides-content">
+                    <p>${item.title}</p>
+                    <p>${item.summary}</p>
+                    <p>${item.description}</p>
+                </div>
+                <div class="slides-image-container">
+                    <img src="${item.image}">
+                </div>
+            </div>
+        `
+        temp2+=`
+            <div class="dot" name="dot" onclick="slide(${item.id-1},true)"></div>
+        `
+    })
+    slider.innerHTML = temp
+    navigation.innerHTML = temp2
+    navigation.children[0].classList.add('active')
+    // Automatic sliding
+    setInterval(() => {
+        lastIndex = currentIndex
+        if (currentIndex === data.length - 1) {
+            currentIndex = 0;
+        } else {
+            currentIndex++;
+        }
+        slide(currentIndex);
+    }, 5000);
+</script>
+
+</html>
